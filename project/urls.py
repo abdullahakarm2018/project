@@ -18,10 +18,25 @@ from django.contrib import admin
 from django.urls import path ,include
 from users import urls as userapp_url
 from shops import urls as shopapp_url
-
+from invoices import urls as invoiceapp_url
+from product import urls as productapp_url
+from rest_framework_simplejwt.views import TokenObtainPairView
+from django.conf import settings
+from django.conf.urls.static import static
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+    TokenVerifyView, # اختياري: للتحقق من صلاحية رمز الوصول
+)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
     path('users/',include(userapp_url)),
+    path('product/',include(productapp_url)),
     path('shops/',include(shopapp_url)),
-]
+    path('invoices/',include(invoiceapp_url)),
+    path('api/token/', TokenObtainPairView.as_view()),
+      path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

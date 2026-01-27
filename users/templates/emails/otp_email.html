@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رمز التحقق</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* إعادة تعيين بعض الإعدادات الافتراضية */
+        * 
+        /* styles.css */
+/* styles.css */
+
+body {
+    font-family: 'Tajawal', sans-serif;
+    background-color: #f4f4f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.card {
+    background-color: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    text-align: center;
+}
+
+/* شعار الشركة */
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.logo-part1 {
+    color: #5553a4; /* اللون الأول للشعار */
+}
+
+.logo-part2 {
+    color: #fdbf4f; /* اللون الثاني للشعار */
+}
+
+/* عنوان الرسالة */
+h1 {
+    font-size: 26px;
+    color: #333333;
+    margin-bottom: 20px;
+}
+
+/* رمز التحقق */
+.code-container {
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+#verification-code {
+    font-size: 28px;
+    font-weight: bold;
+    color: #5553a4; /* لون رمز التحقق */
+    letter-spacing: 4px;
+}
+
+/* رسالة توضيحية */
+.message {
+    font-size: 14px;
+    color: #666666;
+    line-height: 1.6;
+    margin-top: 10px;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <!-- شعار الشركة -->
+            <div class="logo">
+                <span class="logo-part1">خدوم</span>
+                <span class="logo-part2">KHADOOM</span>
+            </div>
+            
+            <!-- عنوان الرسالة -->
+            <h1>رمز التحقق</h1>
+
+            <!-- رمز التحقق -->
+            <div class="code-container">
+                <span id="verification-code">{{ otp }}</span>
+            </div>
+
+            <!-- رسالة توضيحية -->
+            <p class="message">
+                تم إرسال رمز التحقق إلى بريدك الإلكتروني. يرجى استخدامه لإكمال العملية.
+            </p>
+        </div>
+    </div>
+</body>
+</html>

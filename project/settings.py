@@ -10,11 +10,16 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+from datetime import timedelta
+import os
 from pathlib import Path
+import dj_database_url
+import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+#BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -25,7 +30,7 @@ SECRET_KEY = 'django-insecure-#75$w699)7yqi_1@=q)5j-(=ru-16lq)8dfjqxqeeqbxrb1ta$
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.0.63']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,12 +42,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users',
+    'users.apps.UsersConfig',
     'product',
     'shops',
     'invoices',
     'receipts',
+    'payments',
     'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+    'corsheaders',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -53,8 +63,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
-
+CORS_ALLOW_ALL_ORIGINS = True  
 ROOT_URLCONF = 'project.urls'
 
 TEMPLATES = [
@@ -79,12 +91,46 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(
+        default='sqlite:///db.sqlite3'
+    )
 }
+
+REST_FRAMEWORK = { 
+    'DEFAULT_AUTHENTICATION_CLASSES': ( 
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ) 
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=6),  # مدة قصيرة للتوكن الأساسي
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # ريفريش طويل لإعادة التوثيق
+
+    'ROTATE_REFRESH_TOKENS': True,        # يجدد الريفريش تلقائيًا عند كل استخدام
+    'BLACKLIST_AFTER_ROTATION': True,     # يبطل التوكن القديم بعد التدوير
+
+    'UPDATE_LAST_LOGIN': True,            # يحدث وقت آخر دخول تلقائيًا
+
+    'ALGORITHM': 'HS256',                 # التشفير الآمن
+    'SIGNING_KEY': SECRET_KEY,            # مفتاح سري (لا تنشره)
+
+    'AUTH_HEADER_TYPES': ('Bearer',),     # نوع الهيدر
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+}
+
+AUTHENTICATION_BACKENDS = [
+    'users.backends.MultiFieldAuthBackend',  # مسار ملف backends.py
+    'django.contrib.auth.backends.ModelBackend',      # الوضع الافتراضي
+]
 
 
 # Password validation
@@ -121,13 +167,20 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
+STATIC_ROOT = BASE_DIR / 'static'
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'project/static')
+]
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
+AUTH_USER_MODEL ='users.CustomUser'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -135,3 +188,6 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'abdullah774331236@gmail.com'
 EMAIL_HOST_PASSWORD = 'wsxivsvgncdhzrfy'
+
+WHATSAPP_API_URL = 'https://graph.facebook.com/v21.0/557719634088718/messages'
+WHATSAPP_API_TOKEN = 'EAAxlOMRlSvYBO7vz1g1E8PENNB84hiZAscQGVA38ZAO9XHmbEV2su9AJs1aUiTgH0gKKjb4ZByXutFSsvIFS7bZCaohq4TcXFPCU1t96EYHiAZBnwRMthe9doEESERR5CFMXX1l6N0bUwebNrPZAaXlAZCXJeJmJFnX3TFurg9NQFJxpxIjjqQkfPZBNHsiVPgVGYQZDZD'

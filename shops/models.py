@@ -1,5 +1,7 @@
 from django.db import models
-from users.models import Profile
+from django.conf import settings
+from django.forms import ValidationError
+
 from product.models import Product
 # Create your models here.
 
@@ -8,8 +10,8 @@ class TypeShop(models.Model):
     note = models.CharField(max_length=180 , blank=True)
     created_at = models.DateTimeField(auto_now_add = True, auto_now = False, blank = True)
     updated_at = models.DateTimeField(auto_now = True, blank = True)
-    created_user = models.ForeignKey(Profile,on_delete=models.PROTECT,blank=True,null=True, related_name="created_typeShop")
-    updated_user = models.ForeignKey(Profile,on_delete=models.PROTECT,blank=True,null=True, related_name="updated_typeShop")
+    created_user = models.ForeignKey('users.CustomUser',on_delete=models.PROTECT,blank=True,null=True, related_name="created_typeShop")
+    updated_user = models.ForeignKey('users.CustomUser',on_delete=models.PROTECT,blank=True,null=True, related_name="updated_typeShop")
     def __str__(self):
         return self.name
 class CategoryShop(models.Model):
@@ -17,14 +19,13 @@ class CategoryShop(models.Model):
     note = models.CharField(max_length=180 , blank=True)
     created_at = models.DateTimeField(auto_now_add = True, auto_now = False, blank = True)
     updated_at = models.DateTimeField(auto_now = True, blank = True)
-    created_user = models.ForeignKey(Profile,on_delete=models.PROTECT,blank=True,null=True, related_name="created_categoryShop")
-    updated_user = models.ForeignKey(Profile,on_delete=models.PROTECT,blank=True,null=True, related_name="updated_categoryShop")
+    created_user = models.ForeignKey('users.CustomUser',on_delete=models.PROTECT,blank=True,null=True, related_name="created_categoryShop")
+    updated_user = models.ForeignKey('users.CustomUser',on_delete=models.PROTECT,blank=True,null=True, related_name="updated_categoryShop")
     def __str__(self):
         return self.name
     
 class Shop(models.Model):
-   
-    user = models.ForeignKey(Profile,on_delete=models.PROTECT,blank=True,null=True, related_name="user_shop")
+    owner = models.ForeignKey('users.CustomUser',on_delete=models.PROTECT,blank=True,null=True, related_name="user_shop")
     nameAr = models.CharField(max_length=150,null=True,blank=True)
     nameEn = models.CharField(max_length=150,null=True,blank=True)
     logo = models.ImageField( upload_to="shop", null=True,blank=True)
@@ -41,29 +42,39 @@ class Shop(models.Model):
     tiktok = models.CharField(max_length=20,null=True,blank=True)
     created_at = models.DateTimeField(auto_now_add = True, auto_now = False, blank = True)
     updated_at = models.DateTimeField(auto_now = True, blank = True)
-    created_user = models.ForeignKey(Profile,on_delete=models.PROTECT,blank=True,null=True, related_name="created_shop")
-    updated_user = models.ForeignKey(Profile,on_delete=models.PROTECT,blank=True,null=True, related_name="updated_shop")
+    created_user = models.ForeignKey('users.CustomUser',on_delete=models.PROTECT,blank=True,null=True, related_name="created_shop")
+    updated_user = models.ForeignKey('users.CustomUser',on_delete=models.PROTECT,blank=True,null=True, related_name="updated_shop")
     def __str__(self):
         return str(self.nameAr) + " | " + str(self.nameEn)
     
 class ProductShop(models.Model):
-    shop = models.ForeignKey(Shop,on_delete=models.CASCADE,blank=True,null=True)
+    shop = models.ForeignKey(Shop,on_delete=models.CASCADE,blank=True,null=True,related_name='products')
     product = models.ForeignKey(Product,on_delete=models.CASCADE,blank=True,null=True)
-    note = models.CharField(max_length=180 , blank=True)
+    note = models.CharField(max_length=180 , blank=True,null=True)
+    costPrice = models.DecimalField(max_digits=10, decimal_places=2, default=0,blank=True,null=True)
+    sellingPrice = models.DecimalField(max_digits=10, decimal_places=2, default=0,blank=True,null=True)
+    lessAmount = models.FloatField(blank=True, null=True, default=0)
     created_at = models.DateTimeField(auto_now_add = True, auto_now = False, blank = True)
     updated_at = models.DateTimeField(auto_now = True, blank = True)
-    created_user = models.ForeignKey(Profile,on_delete=models.PROTECT,blank=True,null=True, related_name="created_productShop")
-    updated_user = models.ForeignKey(Profile,on_delete=models.PROTECT,blank=True,null=True, related_name="updated_productShop")
+    created_user = models.ForeignKey('users.CustomUser',on_delete=models.PROTECT,blank=True,null=True, related_name="created_productShop")
+    updated_user = models.ForeignKey('users.CustomUser',on_delete=models.PROTECT,blank=True,null=True, related_name="updated_productShop")
     def __str__(self):
-        return str(self.shop) + " | " + str(self.product)
+        return str(self.shop) + " | " + str(self.product)+ " | " + str(self.id)
+    class Meta:
+        unique_together = ('shop', 'product')
+    def clean(self):
+        if self.product.created_by_shop and self.product.created_by_shop != self.shop:
+            raise ValidationError("لا يمكنك استخدام منتج خاص بمتجر آخر")
+
+
     
-class CostomerShop(models.Model):
+class CustomerShop(models.Model):
     shop = models.ForeignKey(Shop,on_delete=models.CASCADE,blank=True,null=True)
-    costomer = models.ForeignKey(Profile,on_delete=models.CASCADE,blank=True,null=True)
+    customer = models.ForeignKey('users.CustomUser',on_delete=models.CASCADE,blank=True,null=True)
     note = models.CharField(max_length=180 , blank=True)
     created_at = models.DateTimeField(auto_now_add = True, auto_now = False, blank = True)
     updated_at = models.DateTimeField(auto_now = True, blank = True)
-    created_user = models.ForeignKey(Profile,on_delete=models.PROTECT,blank=True,null=True, related_name="created_costomerShop")
-    updated_user = models.ForeignKey(Profile,on_delete=models.PROTECT,blank=True,null=True, related_name="updated_costomerShop")
+    created_user = models.ForeignKey('users.CustomUser',on_delete=models.PROTECT,blank=True,null=True, related_name="created_customerShop")
+    updated_user = models.ForeignKey('users.CustomUser',on_delete=models.PROTECT,blank=True,null=True, related_name="updated_customerShop")
     def __str__(self):
-        return str(self.shop) + " | " + str(self.costomer)
+        return f"{self.shop} | {self.customer}"
