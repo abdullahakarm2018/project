@@ -44,4 +44,3 @@ class ProductAdmin(ImportExportModelAdmin):
 admin.site.register(Category)
 admin.site.register(Unit)
 admin.site.register(Company)
-admin.site.register(Product)
