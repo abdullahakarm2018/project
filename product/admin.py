@@ -4,7 +4,8 @@ from django.contrib import admin
 from import_export import resources, fields
 from import_export.widgets import ForeignKeyWidget
 from import_export.admin import ImportExportModelAdmin
-from .models import Product, Category, Unit, Company, Shop
+from .models import Product, Category, Unit, Company
+from shops.models import Shop
 # Register your models here.
 
 
